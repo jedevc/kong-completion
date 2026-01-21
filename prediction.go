@@ -237,7 +237,8 @@ func tagPredictor(tag kongTag, predictors map[string]complete.Predictor, vars ko
 
 	predictor, ok := predictors[predictorName]
 	if !ok {
-		return nil, fmt.Errorf("no predictor with name %q", predictorName)
+		// return nil, fmt.Errorf("no predictor with name %q", predictorName)
+		return nil, nil
 	}
 	return predictor, nil
 }

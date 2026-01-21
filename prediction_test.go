@@ -166,26 +166,33 @@ func TestComplete(t *testing.T) {
 
 func Test_tagPredictor(t *testing.T) {
 	t.Run("nil", func(t *testing.T) {
-		got, err := tagPredictor(nil, nil)
+		got, err := tagPredictor(nil, nil, nil)
 		assert.NoError(t, err)
 		assert.Nil(t, got)
 	})
 
 	t.Run("no predictor tag", func(t *testing.T) {
-		got, err := tagPredictor(testTag{}, nil)
+		got, err := tagPredictor(testTag{}, nil, nil)
 		assert.NoError(t, err)
 		assert.Nil(t, got)
 	})
 
 	t.Run("missing predictor", func(t *testing.T) {
-		got, err := tagPredictor(testTag{predictorTag: "foo"}, nil)
+		got, err := tagPredictor(testTag{predictorTag: "foo"}, nil, nil)
 		assert.Error(t, err)
-		assert.Equal(t, `no predictor with name "foo"`, err.Error())
+		assert.ErrorContains(t, err, `no predictor with name "foo"`)
 		assert.Nil(t, got)
 	})
 
 	t.Run("existing predictor", func(t *testing.T) {
-		got, err := tagPredictor(testTag{predictorTag: "foo"}, map[string]complete.Predictor{"foo": complete.PredictAnything})
+		got, err := tagPredictor(testTag{predictorTag: "foo"}, map[string]complete.Predictor{"foo": complete.PredictAnything}, nil)
+		assert.NoError(t, err)
+		assert.NotNil(t, got)
+	})
+
+	t.Run("interpolation", func(t *testing.T) {
+		vars := kong.Vars{"VAR": "foo"}
+		got, err := tagPredictor(testTag{predictorTag: "${VAR}"}, map[string]complete.Predictor{"foo": complete.PredictAnything}, vars)
 		assert.NoError(t, err)
 		assert.NotNil(t, got)
 	})
